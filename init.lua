@@ -12,25 +12,26 @@ o.showmode = false
 o.updatetime = 300
 o.signcolumn = 'yes'
 o.backup = false
-o.backup = false
 o.writebackup = false
-bo.swapfile = false
 o.backup = false
 o.undodir = vim.fn.stdpath('config') .. '/undodir'
 o.undofile = true
 o.incsearch = true
 o.hidden = true
 o.completeopt='menuone,noinsert,noselect'
-bo.autoindent = true
-bo.smartindent = true
 o.tabstop = 2
 o.softtabstop = 2
 o.shiftwidth = 2
 o.expandtab = true
 o.linespace = 8 
+bo.swapfile = false
+bo.autoindent = true
+bo.smartindent = true
+o.cursorline = true
 wo.number = true
 wo.relativenumber = true
 wo.signcolumn = 'yes'
+wo.colorcolumn = '79'
 wo.wrap = false
 
 -- leader --
@@ -46,36 +47,6 @@ local key_mapper = function(mode, key, result)
   )
 end
 
-function string.starts(String,Start)
-   return string.sub(String,1,string.len(Start))==Start
-end
-
-fsOptions = function()
-  local name = string.sub(vim.api.nvim_buf_get_name(0), -10)
-  if string.starts(name, "NvimTree") == false then
-    return 
-  end
-
-  local popup = require('popup')
-  nt_api = require("nvim-tree.api") 
-  
-  switch = {
-    ["create"] = function() nt_api.fs.create() end,
-    ["rename"] = function() nt_api.fs.rename() end,
-    ["delete"] = function() nt_api.fs.remove() end,
-  }
-  
-  popup.create({ "create", "rename", "delete" }, {
-    line = "cursor+1",
-    col = "cursor+1",
-    padding = {0, 1, 0, 1},
-    enter = true,
-    cursorline = true,
-    callback = function(win_id, sel) switch[string.gsub(sel, "%s+", "")]() end,
-})
-end
-
-key_mapper('n', '<leader>io', ':lua fsOptions()<CR>')
 -- Telescope
 key_mapper('n', '<C-p>', ':lua require"telescope.builtin".find_files()<CR>')
 key_mapper('n', '<leader>fs', ':lua require"telescope.builtin".live_grep()<CR>')
@@ -86,7 +57,6 @@ key_mapper('n', '<leader>fb', ':lua require"telescope.builtin".buffers()<CR>')
 key_mapper('n', '<leader>tt', ':lua require"nvim-tree".toggle(true)<CR>')
 key_mapper('n', '<leader>tf', ':lua require"nvim-tree".find_file()<CR>')
 
-
 -- barbar
 key_mapper('n', '<leader>bq', '<Cmd>BufferClose<CR>')
 key_mapper('n', '<leader>bp', '<Cmd>BufferPin<CR>')
@@ -96,9 +66,11 @@ key_mapper('n', '<C-l>', '<Cmd>BufferNext<CR>')
 
 -- rust building
 key_mapper('n', '<leader>rr', '<Cmd>RustRunnable<CR>')
-key_mapper('n', '<leader>rb', '<Cmd>term cargo build<CR>')
+key_mapper('n', '<leader>rb', '<cmd>term cargo build<cr>')
+key_mapper('n', '<leader>rc', '<cmd>term cargo check<cr>')
 
 -- additional
+key_mapper('n', '<leader>sf', ':w<CR>')
 key_mapper('n', '<S-Q>', '<Cmd>q<CR>')
 
 -- main config --
@@ -134,6 +106,7 @@ packer.startup(function()
   use 'romgrk/barbar.nvim'
   use "lukas-reineke/indent-blankline.nvim"
   use 'mfussenegger/nvim-dap'
+  use 'max397574/better-escape.nvim'
   -- themes
   use 'ellisonleao/gruvbox.nvim'
   use 'overcache/NeoSolarized'
@@ -194,11 +167,6 @@ packer.startup(function()
   end
 )
 
--- colorscheme setup
---vim.g.colors_name = 'NeoSolarized'
---vim.g.neosolarized_contrast = 'low'
---vim.g.neosolarized_visability = 'normal'
---vim.g.neosolarized_italic = 1
 require("gruvbox").setup({
   undercurl = true,
   underline = true,
@@ -345,7 +313,7 @@ require("nvim-tree").setup({
   },
   filters = {
     dotfiles = true,
-  },
+ },
 })
 
 -- Indent lines
@@ -353,4 +321,12 @@ require("indent_blankline").setup {
     -- for example, context is off by default, use this to turn it on
     show_current_context = true,
     show_current_context_start = true,
+}
+
+-- Better Escape
+require("better_escape").setup {
+    mapping = {"jk", "jj"}, -- a table with mappings to use
+    timeout = vim.o.timeoutlen, -- the time in which the keys must be hit in ms. Use option timeoutlen by default
+    clear_empty_lines = false, -- clear line after escaping if there is only whitespace
+    keys = "<Esc>", -- keys used for escaping, if it is a function will use the result everytime
 }
