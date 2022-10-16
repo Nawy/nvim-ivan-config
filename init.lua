@@ -3,205 +3,72 @@ o = vim.o
 bo = vim.bo
 wo = vim.wo
 
--- basic setups --
-o.termguicolors = true
-o.syntax = 'on'
-o.errorbells = false
-o.smartcase = true
-o.showmode = false
-o.updatetime = 300
-o.signcolumn = 'yes'
-o.backup = false
-o.writebackup = false
-o.backup = false
-o.undodir = vim.fn.stdpath('config') .. '/undodir'
-o.undofile = true
-o.incsearch = true
-o.hidden = true
-o.completeopt='menuone,noinsert,noselect'
-o.tabstop = 2
-o.softtabstop = 2
-o.shiftwidth = 2
-o.expandtab = true
-o.linespace = 8 
-bo.swapfile = false
-bo.autoindent = true
-bo.smartindent = true
-o.cursorline = true
-wo.number = true
-wo.relativenumber = true
-wo.signcolumn = 'yes'
-wo.colorcolumn = '79'
-wo.wrap = false
+require 'basic'
+require 'keymaps'
+require 'packages'
 
--- leader --
-vim.g.mapleader = ' '
+if vim.g.neovide ~= nil then
+  -- vim.opt.guifont = { "Hack Nerd Font Mono", ":h14"}
+  -- vim.opt.guifont = { "JetBrains Mono NL", ":h15"}
+  vim.opt.guifont = { "Fantasque Sans Mono", ":h16"}
 
--- key_mapping --
-local key_mapper = function(mode, key, result)
-  vim.api.nvim_set_keymap(
-    mode,
-    key,
-    result,
-    {noremap = true, silent = true}
-  )
+  vim.g.neovide_scroll_animation_length = 0.3
+  vim.g.neovide_fullscreen = true
 end
 
--- Telescope
-key_mapper('n', '<C-p>', ':lua require"telescope.builtin".find_files()<CR>')
-key_mapper('n', '<leader>fs', ':lua require"telescope.builtin".live_grep()<CR>')
-key_mapper('n', '<leader>fh', ':lua require"telescope.builtin".help_tags()<CR>')
-key_mapper('n', '<leader>fb', ':lua require"telescope.builtin".buffers()<CR>')
-
--- nvim tree
-key_mapper('n', '<leader>tt', ':lua require"nvim-tree".toggle(true)<CR>')
-key_mapper('n', '<leader>tf', ':lua require"nvim-tree".find_file()<CR>')
-
--- barbar
-key_mapper('n', '<leader>bq', '<Cmd>BufferClose<CR>')
-key_mapper('n', '<leader>bp', '<Cmd>BufferPin<CR>')
-key_mapper('n', '<leader>bs', '<Cmd>BufferPick<CR>')
-key_mapper('n', '<C-h>', '<Cmd>BufferPrevious<CR>')
-key_mapper('n', '<C-l>', '<Cmd>BufferNext<CR>')
-
--- rust building
-key_mapper('n', '<leader>rr', '<Cmd>RustRunnable<CR>')
-key_mapper('n', '<leader>rb', '<cmd>term cargo build<cr>')
-key_mapper('n', '<leader>rc', '<cmd>term cargo check<cr>')
-
--- additional
-key_mapper('n', '<leader>sf', ':w<CR>')
-key_mapper('n', '<S-Q>', '<Cmd>q<CR>')
-
--- main config --
---
-local vim = vim
-
-local execute = vim.api.nvim_command
-local fn = vim.fn
-
--- ensure that packer is installed
---local install_path = fn.stdpath('data')..'site/pack/packer/opt/packer.nvim'
---if fn.empty(fn.glob(install_path)) > 0 then
---  execute('!git clone https://github.com/wbthomason/packer.nvim '..install_path)
---  execute 'packadd packer.nvim'
---end
-
--- vim.cmd('packadd packer.nvim')
-
-local packer = require'packer'
-local util = require'packer.util'
-
-packer.init({
-  package_root = util.join_paths(vim.fn.stdpath('data'), 'site', 'pack')
-})
-
---startup and add configure plugins
---
-packer.startup(function()
-  local use = use
-  -- list of the plugins
-  use 'nvim-treesitter/nvim-treesitter'
-  use 'sheerun/vim-polyglot'
-  use 'romgrk/barbar.nvim'
-  use "lukas-reineke/indent-blankline.nvim"
-  use 'mfussenegger/nvim-dap'
-  use 'max397574/better-escape.nvim'
-  -- themes
-  use 'ellisonleao/gruvbox.nvim'
-  use 'overcache/NeoSolarized'
-  
-  -- LSP
-  use 'neovim/nvim-lspconfig'
-  
-  -- Rust
-  use 'rust-lang/rust.vim'
-  use 'simrat39/rust-tools.nvim'
-  use 'preservim/tagbar'
-  -- Debugging
-  use 'mfussenegger/nvim-dap'
-
-  -- Telescope
-  use 'nvim-lua/plenary.nvim'
-  use 'nvim-lua/popup.nvim'
-  use 'nvim-lua/telescope.nvim'
-  use 'jremmen/vim-ripgrep'
-
-  -- CMP
-  use 'onsails/lspkind.nvim'
-  use {
-    "hrsh7th/nvim-cmp",
-    requires = {
-      "hrsh7th/cmp-buffer", 
-      "hrsh7th/cmp-nvim-lsp",
-      'L3MON4D3/LuaSnip',
-      'saadparwaiz1/cmp_luasnip',
-      'octaltree/cmp-look', 
-      'hrsh7th/cmp-path', 
-      'f3fora/cmp-spell', 
-      'hrsh7th/cmp-emoji'
-    }
-  }
-  use {
-    "windwp/nvim-autopairs",
-    config = function() require("nvim-autopairs").setup {} end
-  }
-  use {
-    'tzachar/cmp-tabnine',
-    run = './install.sh',
-    requires = 'hrsh7th/nvim-cmp'
-  }
-  use {
-    'kyazdani42/nvim-tree.lua',
-    requires = {
-      'kyazdani42/nvim-web-devicons', -- optional, for file icons
-    },
-  }
-  use({
-    "kylechui/nvim-surround",
-    tag = "*", -- Use for stability; omit to use `main` branch for the latest features
-    config = function()
-        require("nvim-surround").setup({})
-    end
-  })
-  end
-)
-
-require("gruvbox").setup({
-  undercurl = true,
-  underline = true,
-  bold = true,
-  italic = true,
-  strikethrough = true,
-  invert_selection = false,
-  invert_signs = false,
-  invert_tabline = false,
-  invert_intend_guides = false,
-  inverse = true, -- invert background for search, diffs, statuslines and errors
-  contrast = "", -- can be "hard", "soft" or empty string
-  overrides = {},
-  dim_inactive = false,
-  transparent_mode = false,
-})
-vim.g.colors_name = 'gruvbox'
-
-o.background = 'dark'
-
--- treesettter config
-local configs = require'nvim-treesitter.configs'
-configs.setup {
-  ensure_installed = {"lua", "rust", "c", "json", "html", "yaml"},
-  sync_install = false,
-  auto_install = true,
-  highlight = {
-    enable = true,
+require('lualine').setup {
+  options = {
+    theme = 'everforst'
   }
 }
+
+-- require("gruvbox").setup({
+--   undercurl = true,
+--   underline = true,
+--   bold = true,
+--   italic = true,
+--   strikethrough = true,
+--   invert_selection = false,
+--   invert_signs = false,
+--   invert_tabline = false,
+--   invert_intend_guides = false,
+--   inverse = true, -- invert background for search, diffs, statuslines and errors
+--   contrast = "soft", -- can be "hard", "soft" or empty string
+--   overrides = {},
+--   dim_inactive = false,
+--   transparent_mode = false,
+-- })
+-- vim.g.colors_name = 'gruvbox'
+-- o.background = 'dark'
+
+vim.cmd("colorscheme everforest")
+o.background = 'dark'
+
+-- TreeSettter Config
+local configs = require'nvim-treesitter.configs'
+configs.setup {
+  ensure_installed = {"lua", "rust", "c", "go", "json", "html", "yaml"},
+  sync_install = false,
+  auto_install = true,
+  highlight = { enable = true },
+  indent = { enable = true }
+}
+
+-- LSP
+local nvim_lsp = require'lspconfig' 
 
 -- rust setup
 local rt = require("rust-tools")
 
 rt.setup({
+  tools = {
+    autoSetHints = true, 
+    inlay_hints = {
+      show_parameter_hints = false,
+      parameter_hints_prefix = "",
+      other_hints_refix = ""
+    }
+  },
   server = {
     on_attach = function(_, bufnr)
       -- Hover actions
@@ -209,6 +76,16 @@ rt.setup({
       -- Code action groups
       vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
     end,
+    settings = {
+        -- to enable rust-analyzer settings visit:
+        -- https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/user/generated_config.adoc
+        ["rust-analyzer"] = {
+            -- enable clippy on save
+            checkOnSave = {
+                command = "clippy"
+            },
+        }
+    }
   },
 })
 require('rust-tools').inlay_hints.set()
@@ -217,6 +94,7 @@ require('rust-tools').inlay_hints.enable()
 
 -- CMP Config
 local cmp = require('cmp')
+vim.o.shortmess = vim.o.shortmess .. "c"
 
 local t = function(str)
     return vim.api.nvim_replace_termcodes(str, true, true, true)
@@ -330,3 +208,6 @@ require("better_escape").setup {
     clear_empty_lines = false, -- clear line after escaping if there is only whitespace
     keys = "<Esc>", -- keys used for escaping, if it is a function will use the result everytime
 }
+
+-- Terminal
+require('toggleterm').setup()
