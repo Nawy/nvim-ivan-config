@@ -1,3 +1,5 @@
+local P = {}
+keymaps = P
 -- leader --
 vim.g.mapleader = ' '
 
@@ -31,20 +33,37 @@ key_mapper('n', '<leader>nc', ':lua vim.lsp.buf.rename()<CR>')
 key_mapper('n', '<leader>tt', ':lua require"nvim-tree".toggle(true)<CR>')
 key_mapper('n', '<leader>tf', ':lua require"nvim-tree".find_file()<CR>')
 
--- barbar
-key_mapper('n', '<leader>bq', '<Cmd>BufferClose<CR>')
-key_mapper('n', '<leader>bp', '<Cmd>BufferPin<CR>')
-key_mapper('n', '<leader>bs', '<Cmd>BufferPick<CR>')
-key_mapper('n', '<C-h>', '<Cmd>BufferPrevious<CR>')
-key_mapper('n', '<C-l>', '<Cmd>BufferNext<CR>')
+-- bufferline
+key_mapper('n', '<leader>bq', '<Cmd>BufferLineCloseRight<CR>')
+key_mapper('n', '<leader>bp', '<Cmd>BufferLineTogglePin<CR>')
+key_mapper('n', '<leader>bs', '<Cmd>BufferLinePick<CR>')
+key_mapper('n', '<C-h>', '<Cmd>BufferLineCyclePrev<CR>')
+key_mapper('n', '<C-l>', '<Cmd>BufferLineCycleNext<CR>')
 
--- rust building
-key_mapper('n', '<leader>rr', '<Cmd>RustRunnable<CR>')
-key_mapper('n', '<leader>rb', ':lua require"toggleterm".exec("cargo build", 1, 12)<cr>')
-key_mapper('n', '<leader>rc', '<cmd>term cargo check<cr>')
-key_mapper('n', '<leader>rt', '<cmd>term cargo test<cr>')
+-- Rust
+function P.map_rust_keys(bufnr)
+  key_mapper('n', '<leader>rr', '<Cmd>RustRunnable<CR>')
+  key_mapper('n', '<leader>rb', '<cmd>term cargo build<cr>')
+  key_mapper('n', '<leader>rc', '<cmd>term cargo check<cr>')
+  key_mapper('n', '<leader>rt', '<cmd>term cargo test<cr>')
+end
 
+-- Java
+function P.map_java_keys(bufnr)
+  local spring_boot_run = 'mvn spring-boot:run -Dspring-boot.run.profiles=local'
+  local command = ':lua require("toggleterm").exec("' .. spring_boot_run .. '")<CR>'
+  key_mapper('n', '<leader>sr', command)
+  key_mapper('n', '<leader>oi', ':lua require("jdtls").organize_imports()<CR>')
+  key_mapper('n', '<leader>jc', ':lua require("jdtls).compile("incremental")')
+end
+
+-- hop
+key_mapper('n', 'f', '<cmd>HopWordCurrentLineAC<cr>')
+key_mapper('n', '<S-F>', '<cmd>HopWordCurrentLineBC<cr>')
+key_mapper('n', '<leader>hp', '<cmd>HopPattern<cr>')
+key_mapper('n', 'gt', '<cmd>HopLine<cr>')
 -- additional
 key_mapper('n', '<leader>sf', ':w<CR>')
 key_mapper('n', '<S-Q>', '<Cmd>q<CR>')
 
+return P

@@ -12,17 +12,17 @@ packer.startup(function(use)
   
   -- list of the plugins
   use 'nvim-treesitter/nvim-treesitter'
-  use 'romgrk/barbar.nvim'
+  use 'akinsho/bufferline.nvim'
   use "lukas-reineke/indent-blankline.nvim"
   use 'max397574/better-escape.nvim'
   -- themes
-  use 'ellisonleao/gruvbox.nvim'
+  use 'sainnhe/gruvbox-material'
   use 'sainnhe/everforest' 
   
   -- LSP
+  use "williamboman/mason.nvim"
   use 'neovim/nvim-lspconfig'
-  use 'williamboman/nvim-lsp-installer'
-  use 'mfussenegger/nvim-jdtls'
+  use { "mfussenegger/nvim-jdtls", ft = { "java" }}
   
   -- Rust
   use 'simrat39/rust-tools.nvim'
@@ -54,6 +54,10 @@ packer.startup(function(use)
   }
 
   -- Miscellaneous --
+  use {
+    'phaazon/hop.nvim',
+    branch = 'v2', -- optional but strongly recommended
+  }
   use 'tpope/vim-commentary' 
   use 'nvim-lualine/lualine.nvim'
   use 'akinsho/toggleterm.nvim'

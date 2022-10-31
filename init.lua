@@ -4,45 +4,44 @@ bo = vim.bo
 wo = vim.wo
 
 require 'basic'
-require 'keymaps'
+keymaps = require'keymaps'
 require 'packages'
+require 'completion'
 
 if vim.g.neovide ~= nil then
-  -- vim.opt.guifont = { "Hack Nerd Font Mono", ":h14"}
-  -- vim.opt.guifont = { "JetBrains Mono NL", ":h15"}
   vim.opt.guifont = { "Fantasque Sans Mono", ":h16"}
-
   vim.g.neovide_scroll_animation_length = 0.3
-  vim.g.neovide_fullscreen = true
+  -- vim.g.neovide_fullscreen = true
 end
 
 require('lualine').setup {
   options = {
-    theme = 'everforst'
+    theme = 'gruvbox-material'
   }
 }
 
--- require("gruvbox").setup({
---   undercurl = true,
---   underline = true,
---   bold = true,
---   italic = true,
---   strikethrough = true,
---   invert_selection = false,
---   invert_signs = false,
---   invert_tabline = false,
---   invert_intend_guides = false,
---   inverse = true, -- invert background for search, diffs, statuslines and errors
---   contrast = "soft", -- can be "hard", "soft" or empty string
---   overrides = {},
---   dim_inactive = false,
---   transparent_mode = false,
--- })
--- vim.g.colors_name = 'gruvbox'
--- o.background = 'dark'
-
-vim.cmd("colorscheme everforest")
 o.background = 'dark'
+vim.g.gruvbox_material_background = 'medium'
+vim.g.gruvbox_material_better_performance = 1
+vim.cmd("colorscheme gruvbox-material")
+-- vim.cmd("colorscheme everforest")
+
+-- Bufferline --
+require("bufferline").setup{
+  options = {
+    separator_style = "slant",
+    diagnostics = "nvim_lsp",
+  
+    offsets = {
+        {
+            filetype = "NvimTree",
+            text = "File Explorer",
+            highlight = "Directory",
+            separator = true,
+        }
+    }
+  }
+}
 
 -- TreeSettter Config
 local configs = require'nvim-treesitter.configs'
@@ -55,7 +54,9 @@ configs.setup {
 }
 
 -- LSP
+require("mason").setup()
 local nvim_lsp = require'lspconfig' 
+
 
 -- rust setup
 local rt = require("rust-tools")
@@ -75,6 +76,7 @@ rt.setup({
       vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
       -- Code action groups
       vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+      keymaps.map_rust_keys(bufnr)
     end,
     settings = {
         -- to enable rust-analyzer settings visit:
@@ -90,78 +92,6 @@ rt.setup({
 })
 require('rust-tools').inlay_hints.set()
 require('rust-tools').inlay_hints.enable()
-
-
--- CMP Config
-local cmp = require('cmp')
-vim.o.shortmess = vim.o.shortmess .. "c"
-
-local t = function(str)
-    return vim.api.nvim_replace_termcodes(str, true, true, true)
-end
-
-local check_back_space = function()
-    local col = vim.fn.col(".") - 1
-    return col == 0 or vim.fn.getline("."):sub(col, col):match("%s") ~= nil
-end
-
-cmp.setup {
-
-    formatting = {
-        format = function(entry, vim_item)
-            -- fancy icons and a name of kind
-            vim_item.kind = require("lspkind").presets.default[vim_item.kind] ..
-                                " " .. vim_item.kind
-            -- set a name for each source
-            vim_item.menu = ({
-                buffer = "[Buf]",
-                nvim_lsp = "[LSP]",
-                luasnip = "[LuaSnip]",
-                cmp_tabnine = "[Tn]",
-            })[entry.source.name]
-            return vim_item
-        end
-    },
-    mapping = {
-        ['<Tab>'] = function(fallback)
-          if cmp.visible() then
-            cmp.select_next_item()
-          else
-            fallback()
-          end
-        end,
-        ['<S-Tab>'] = function(fallback)
-          if cmp.visible() then
-            print("visible -")
-            cmp.select_prev_item()
-          else
-            print("NOT visible -")
-            fallback()
-          end
-        end,
-        ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-        ['<C-f>'] = cmp.mapping.scroll_docs(4),
-        ['<C-Space>'] = cmp.mapping.complete(),
-        ['<C-e>'] = cmp.mapping.close(),
-        ['<CR>'] = cmp.mapping.confirm({
-            behavior = cmp.ConfirmBehavior.Insert,
-            select = true
-        }),
-    },
-    -- TODO: try to remove or fix this line
-    snippet = { 
-      expand = function(args)
-        require'luasnip'.lsp_expand(args.body)
-      end
-    },
-    sources = {
-        {name = 'nvim_lsp'}, 
-        {name = 'buffer', keyword_length = 4},
-        {name = "luasnip"},
-        {name = 'cmp_tabnine', keyword_length = 3} 
-    },
-    completion = {completeopt = 'menu,menuone,noinsert'}
-}
 
 -- Autopairs
 require('nvim-autopairs').setup({
@@ -193,6 +123,10 @@ require("nvim-tree").setup({
     dotfiles = true,
  },
 })
+
+-- hop
+local hop = require('hop')
+hop.setup {}
 
 -- Indent lines
 require("indent_blankline").setup {
