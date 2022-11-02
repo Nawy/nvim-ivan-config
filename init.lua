@@ -4,10 +4,13 @@ bo = vim.bo
 wo = vim.wo
 
 require 'basic'
-keymaps = require'keymaps'
+require 'keymaps'
 require 'packages'
 require 'completion'
+require 'rust'
+require 'tree'
 
+-- Neovide Configuration
 if vim.g.neovide ~= nil then
   vim.opt.guifont = { "Fantasque Sans Mono", ":h16"}
   vim.g.neovide_scroll_animation_length = 0.3
@@ -24,7 +27,6 @@ o.background = 'dark'
 vim.g.gruvbox_material_background = 'medium'
 vim.g.gruvbox_material_better_performance = 1
 vim.cmd("colorscheme gruvbox-material")
--- vim.cmd("colorscheme everforest")
 
 -- Bufferline --
 require("bufferline").setup{
@@ -58,41 +60,6 @@ require("mason").setup()
 local nvim_lsp = require'lspconfig' 
 
 
--- rust setup
-local rt = require("rust-tools")
-
-rt.setup({
-  tools = {
-    autoSetHints = true, 
-    inlay_hints = {
-      show_parameter_hints = false,
-      parameter_hints_prefix = "",
-      other_hints_refix = ""
-    }
-  },
-  server = {
-    on_attach = function(_, bufnr)
-      -- Hover actions
-      vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
-      -- Code action groups
-      vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
-      keymaps.map_rust_keys(bufnr)
-    end,
-    settings = {
-        -- to enable rust-analyzer settings visit:
-        -- https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/user/generated_config.adoc
-        ["rust-analyzer"] = {
-            -- enable clippy on save
-            checkOnSave = {
-                command = "clippy"
-            },
-        }
-    }
-  },
-})
-require('rust-tools').inlay_hints.set()
-require('rust-tools').inlay_hints.enable()
-
 -- Autopairs
 require('nvim-autopairs').setup({
   disable_filetype = { "TelescopePrompt" , "vim" },
@@ -101,28 +68,6 @@ require('nvim-autopairs').setup({
 -- TabNine
 local tabnine = require('cmp_tabnine.config')
 tabnine:setup({max_lines = 1000, max_num_results = 20, sort = true})
-
--- Tree setup
--- disable netrw at the very start of your init.lua (strongly advised)
-vim.g.loaded = 1
-vim.g.loaded_netrwPlugin = 1
-require("nvim-tree").setup({
-  sort_by = "case_sensitive",
-  view = {
-    adaptive_size = true,
-    mappings = {
-      list = {
-        { key = "u", action = "dir_up" },
-      },
-    },
-  },
-  renderer = {
-    group_empty = true,
-  },
-  filters = {
-    dotfiles = true,
- },
-})
 
 -- hop
 local hop = require('hop')
@@ -145,3 +90,17 @@ require("better_escape").setup {
 
 -- Terminal
 require('toggleterm').setup()
+
+-- Telescope
+actions = require('telescope.actions')
+require('telescope').setup{
+  defaults = {
+    layout_strategy = "vertical",
+    mappings = {
+      i = {
+        ["<C-u>"] = false,
+        ["<C-e>"] = actions.close,
+      }
+    }
+  }
+}
