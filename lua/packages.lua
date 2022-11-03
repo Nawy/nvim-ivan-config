@@ -23,6 +23,7 @@ packer.startup(function(use)
   use "williamboman/mason.nvim"
   use 'neovim/nvim-lspconfig'
   use { "mfussenegger/nvim-jdtls", ft = { "java" }}
+  use "ray-x/lsp_signature.nvim"
   
   -- Rust
   use 'simrat39/rust-tools.nvim'

@@ -64,12 +64,12 @@ function P.map_rust_keys(bufnr)
 end
 
 -- Java
-local spring_boot_run = 'mvn spring-boot:run -Dspring-boot.run.profiles=local'
-local command = ':lua require("toggleterm").exec("' .. spring_boot_run .. '")<CR>'
-key_map('n', '<leader>sr', command)
-key_map('n', '<leader>oi', ':lua require("jdtls").organize_imports()<CR>')
-key_map('n', '<leader>jc', ':lua require("jdtls).compile("incremental")')
 function P.map_java_keys(bufnr)
+  local spring_boot_run = 'mvn spring-boot:run -Dspring-boot.run.profiles=local'
+  local command = ':lua require("toggleterm").exec("' .. spring_boot_run .. '")<CR>'
+  key_map('n', '<leader>sr', command)
+  key_map('n', '<leader>oi', ':lua require("jdtls").organize_imports()<CR>')
+  key_map('n', '<leader>jc', ':lua require("jdtls).compile("incremental")')
 end
 
 -- hop

@@ -27,9 +27,9 @@ cmp.setup {
 
   window = {
     documentation = cmp.config.window.bordered()
-  }
+  },
 
-  completion = {completeopt = 'menu,menuone,noinsert'}
+  completion = {completeopt = 'menu,menuone,noinsert'},
   
   formatting = {
       format = function(entry, vim_item)

@@ -21,8 +21,6 @@ local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
 local workspace_dir = vim.fn.stdpath('data') .. '/site/java/workspace-root/' .. project_name
 os.execute("mkdir " .. workspace_dir)
 
-print(root_dir)
-
 local config = {
   -- The command that starts the language server
   -- See: https://github.com/eclipse/eclipse.jdt.ls#running-from-the-command-line
@@ -59,6 +57,16 @@ local config = {
       },
       configuration = {
         updateBuildConfiguration = "interactive",
+        runtimes = {
+          {
+            name = "JavaSE-18",
+            path = "/Users/ivanermolaev/Library/Java/JavaVirtualMachines/temurin-18.0.1/Contents/Home",
+          },
+          {
+            name = "JavaSE-17",
+            path = "/Users/ivanermolaev/Library/Java/JavaVirtualMachines/temurin-17.0.4/Contents/Home",
+          }
+        }
       },
       maven = {
         downloadSources = true,
@@ -79,6 +87,7 @@ local config = {
           profile = "GoogleStyle",
         },
       },
+
     },
     signatureHelp = { enabled = true },
     completion = {
@@ -120,9 +129,18 @@ local config = {
     bundles = {},
   },
 }
+
+config['on_attach'] = function(client, bufnr)
+  require'keymaps'.map_java_keys(bufnr);
+  require "lsp_signature".on_attach({
+    bind = true, -- This is mandatory, otherwise border config won't get registered.
+    floating_window_above_cur_line = false,
+    padding = '',
+    handler_opts = {
+      border = "rounded"
+    }
+  }, bufnr)
+end
 -- This starts a new client & server,
 -- or attaches to an existing client & server depending on the `root_dir`.
 require('jdtls').start_or_attach(config)
-
--- Add the commands
--- require("jdtls.setup").add_commands()
