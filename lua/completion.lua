@@ -12,7 +12,10 @@ local check_back_space = function()
 end
 
 cmp.setup {
-  -- TODO: try to remove or fix this line
+  enable = function()
+    return vim.api.nvim_buf_get_option(0, "buftype") ~= "prompt"
+        or require("cmp_dap").is_dap_buffer()
+  end,
   snippet = { 
     expand = function(args)
       require'luasnip'.lsp_expand(args.body)
@@ -20,9 +23,9 @@ cmp.setup {
   },
   sources = {
       {name = 'nvim_lsp'}, 
-      {name = 'buffer', keyword_length = 4},
+      {name = 'buffer', keyword_length = 3},
       {name = "luasnip", keyword_length = 2},
-      {name = 'cmp_tabnine', keyword_length = 3} 
+      {name = 'cmp_tabnine', keyword_length = 3},
   },
 
   window = {
@@ -30,6 +33,7 @@ cmp.setup {
   },
 
   completion = {completeopt = 'menu,menuone,noinsert'},
+  preselect = cmp.PreselectMode.None,
   
   formatting = {
       format = function(entry, vim_item)
@@ -83,3 +87,16 @@ cmp.setup {
       ['<C-Space>'] = cmp.mapping.complete(),
   },
 }
+
+require("cmp").setup({
+  enabled = function()
+    return vim.api.nvim_buf_get_option(0, "buftype") ~= "prompt"
+        or require("cmp_dap").is_dap_buffer()
+  end
+})
+
+require("cmp").setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, {
+  sources = {
+    { name = "dap" },
+  },
+})

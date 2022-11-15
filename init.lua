@@ -9,6 +9,7 @@ require 'packages'
 require 'completion'
 require 'rust'
 require 'tree'
+require 'debugging'
 
 -- Neovide Configuration
 if vim.g.neovide ~= nil then

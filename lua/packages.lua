@@ -31,6 +31,7 @@ packer.startup(function(use)
 
   -- Debugging
   use 'mfussenegger/nvim-dap'
+  use 'rcarriga/cmp-dap'
 
   -- Telescope
   use 'nvim-lua/plenary.nvim'

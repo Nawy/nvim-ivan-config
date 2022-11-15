@@ -18,6 +18,15 @@ rt.setup({
       -- Code action groups
       vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
       keymaps.map_rust_keys(bufnr)
+      
+      require "lsp_signature".on_attach({
+        bind = true, -- This is mandatory, otherwise border config won't get registered.
+        floating_window_above_cur_line = false,
+        padding = '',
+        handler_opts = {
+          border = "rounded"
+        }
+      }, bufnr)
     end,
     settings = {
         -- to enable rust-analyzer settings visit:

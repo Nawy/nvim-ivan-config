@@ -126,7 +126,9 @@ local config = {
     allow_incremental_sync = true,
   },
   init_options = {
-    bundles = {},
+    bundles = {
+      vim.fn.glob("/Users/ivanermolaev/Develop/Test/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-0.42.0.jar", 1)
+    },
   },
 }
 
@@ -140,6 +142,7 @@ config['on_attach'] = function(client, bufnr)
       border = "rounded"
     }
   }, bufnr)
+  require('jdtls').setup_dap({ hotcodereplace = 'auto' })
 end
 -- This starts a new client & server,
 -- or attaches to an existing client & server depending on the `root_dir`.
