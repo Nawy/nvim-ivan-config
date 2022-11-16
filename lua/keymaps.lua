@@ -74,8 +74,6 @@ function debug_attach()
     },
   }
   dap.continue()
-  -- vim.ui.input({ prompt = 'ProcessId: ' }, function(input)
-  -- end)
 end
 
 function debug_run()
@@ -124,6 +122,20 @@ function P.map_rust_keys(bufnr)
   key_map('n', '<leader>rt', '<cmd>term cargo test<cr>')
 end
 
+function P.run_command_method_test()
+  local node_utils = require'node-utils'
+  local method_name = node_utils.get_current_full_method_name("\\#")
+  local mvn_run = 'mvn test -Dmaven.surefire.debug -Dtest="' .. method_name .. '"' 
+  vim.cmd('term ' .. mvn_run)
+end
+
+function P.run_command_class_test()
+  local node_utils = require'node-utils'
+  local class_name = node_utils.get_current_full_class_name()
+  local mvn_run = 'mvn test -Dmaven.surefire.debug -Dtest="' .. class_name .. '"' 
+  vim.cmd('term ' .. mvn_run)
+end
+
 -- Java
 function P.map_java_keys(bufnr)
   P.map_lsp_keys()
@@ -134,6 +146,8 @@ function P.map_java_keys(bufnr)
   key_map('n', '<leader>oi', ':lua require("jdtls").organize_imports()<CR>')
   key_map('n', '<leader>jc', ':lua require("jdtls).compile("incremental")')
   key_map('n', '<leader>dj', ':lua debug_run()<CR>')
+
+  vim.keymap.set("n", "<leader>TM", P.run_command_method_test)
 end
 
 -- hop
