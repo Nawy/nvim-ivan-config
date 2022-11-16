@@ -62,41 +62,6 @@ key_map('n', '<C-l>', '<Cmd>BufferLineCycleNext<CR>')
 key_map('', '<leader>tc', '<Cmd>ToggleTermToggleAll<CR>')
 
 -- Debugging 
-function debug_attach()
-  local dap = require('dap')
-  dap.configurations.java = {
-    {
-      type = 'java';
-      request = 'attach';
-      name = "Attach to the process";
-      hostName = 'localhost';
-      port = '5005';
-    },
-  }
-  dap.continue()
-end
-
-function debug_run()
-  local dap = require('dap')
-  dap.configurations.java = {
-    {
-      type = 'java';
-      request = 'attach';
-      name = "Attach to the process";
-      hostName = 'localhost';
-      port = '5005';
-    },
-  }
-  dap.continue()
-  -- vim.ui.input({ prompt = 'ProcessId: ' }, function(input)
-  -- end)
-end
-
-function debug_open_scopes()
-  local widgets = require('dap.ui.widgets')
-  local my_sidebar = widgets.sidebar(widgets.scopes)
-  my_sidebar.open()
-end
 
 function debug_open_centered_scopes()
   local widgets = require'dap.ui.widgets'
@@ -112,6 +77,8 @@ key_map('n', '<leader>b', ':lua require"dap".toggle_breakpoint()<CR>')
 key_map('n', '<leader>B', ':lua require"dap".set_breakpoint(vim.fn.input("Condition: "))<CR>')
 key_map('n', '<leader>bl', ':lua require"dap".set_breakpoint(nil, nil, vim.fn.input("Log: "))<CR>')
 key_map('n', '<leader>dr', ':lua require"dap".repl.open()<CR>')
+
+-- Java
 
 -- Rust
 function P.map_rust_keys(bufnr)
@@ -139,15 +106,8 @@ end
 -- Java
 function P.map_java_keys(bufnr)
   P.map_lsp_keys()
-  key_map('n', '<leader>rr', '<Cmd>RustRunnable<CR>')
-  local spring_boot_run = 'mvn spring-boot:run -Dspring-boot.run.profiles=local -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"'
-  local command = '<cmd>TermExec cmd=\'' .. spring_boot_run .. '\'<CR>'
-  key_map('n', '<leader>sr', command)
   key_map('n', '<leader>oi', ':lua require("jdtls").organize_imports()<CR>')
   key_map('n', '<leader>jc', ':lua require("jdtls).compile("incremental")')
-  key_map('n', '<leader>dj', ':lua debug_run()<CR>')
-
-  vim.keymap.set("n", "<leader>TM", P.run_command_method_test)
 end
 
 -- hop
@@ -159,4 +119,65 @@ key_map('n', 'gt', '<cmd>HopLine<cr>')
 key_map('n', '<leader>sf', ':w<CR>')
 key_map('n', '<S-Q>', '<Cmd>q<CR>')
 
+
+-- run debug
+function get_test_runner(test_name, debug)
+  if debug then
+    return 'mvn test -Dmaven.surefire.debug -Dtest="' .. test_name .. '"' 
+  end
+  return 'mvn test -Dtest="' .. test_name .. '"' 
+end
+
+function run_java_test_method(debug)
+  local utils = require'utils'
+  local method_name = utils.get_current_full_method_name("\\#")
+  vim.cmd('term ' .. get_test_runner(method_name, debug))
+end
+
+function run_java_test_class(debug)
+  local utils = require'utils'
+  local class_name = utils.get_current_full_class_name()
+  vim.cmd('term ' .. get_test_runner(class_name, debug))
+end
+
+function get_spring_boot_runner(profile, debug)
+  local debug_param = ""
+  if debug then
+    debug_param = ' -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" '
+  end 
+
+  local profile_param = ""
+  if profile then
+    profile_param = " -Dspring-boot.run.profiles=" .. profile .. " "
+  end
+
+  return 'mvn spring-boot:run ' .. profile_param .. debug_param
+end
+
+function run_spring_boot(debug)
+  vim.cmd('term ' .. get_spring_boot_runner("local", debug))
+end
+
+vim.keymap.set("n", "<leader>tm", function() run_java_test_method() end)
+vim.keymap.set("n", "<leader>TM", function() run_java_test_method(true) end)
+vim.keymap.set("n", "<leader>tc", function() run_java_test_class() end)
+vim.keymap.set("n", "<leader>TC", function() run_java_test_class(true) end)
+vim.keymap.set("n", "<F9>", function() run_spring_boot() end)
+vim.keymap.set("n", "<F10>", function() run_spring_boot(true) end)
+
+function attach_to_debug()
+  local dap = require('dap')
+  dap.configurations.java = {
+    {
+      type = 'java';
+      request = 'attach';
+      name = "Attach to the process";
+      hostName = 'localhost';
+      port = '5005';
+    },
+  }
+  dap.continue()
+end 
+
+key_map('n', '<leader>da', ':lua attach_to_debug()<CR>')
 return P
